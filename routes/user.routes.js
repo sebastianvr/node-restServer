@@ -24,12 +24,14 @@ router.post('/', [
     //check('rol', 'El rol no es válido').isIn(['ADMIN_ROLE', 'USER_ROLE']),
     check('correo').custom(existeE),
     check('rol').custom(esRolValido),
+    //notar que validarcampos no es pasado como una funcion solo (sin foo()), es pasado como referencia
+    //la req y res son enviados a la funcion "implicitamente"
     validarCampos,
     
     
 ], usuariosPost);
 
-
+//actualizar enviando id
 router.put('/:id', [
     check('id', 'No es un id válido').isMongoId(),
     check('id').custom(existeUsuarioPorId),
@@ -37,6 +39,7 @@ router.put('/:id', [
     validarCampos
 ],usuariosPut);
 
+//elimino usando id
 router.delete('/:id', usuariosDelete);
 
 module.exports = router;
