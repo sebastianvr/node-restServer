@@ -20,12 +20,11 @@ const UsuarioShema = Schema({
     },
     rol: {
         type: String,
-        required: [true, 'La contraseña es obligatoria'],
-        //enum: ['ADMIN_ROLE', 'USER_ROLE', ]
+        required: [true, 'La rol es obligatorio'],
     },
     estado: {
         type: Boolean,
-        default: false
+        default: true
     },
     google: {
         type: Boolean,
@@ -38,7 +37,7 @@ const UsuarioShema = Schema({
 UsuarioShema.methods.toJSON = function (){
     const {__v, password, ...usuario} = this.toObject();
     return usuario;
-}
+};
 
 //primer parametro en singular
 module.exports = model('Usuario', UsuarioShema);
