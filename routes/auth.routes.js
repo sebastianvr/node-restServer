@@ -8,11 +8,11 @@ const route = Router();
 
 
 route.post('/login', [
-    //check('correo', 'El correo es obligatorio').not().isEmpty(),
     check('correo', 'El correo es invalido').isEmail(),
     check('password', 'La contraseña es obligatoria').not().isEmpty(),
-
-    validarCampos], login);
+    validarCampos
+    ], login
+);
 
 
 module.exports = route;

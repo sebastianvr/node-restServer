@@ -1,10 +1,18 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
 
-const { validarCampos } = require('../middlewares/validar-campos');
-const { validarJWT } = require('../middlewares/validar-jwt');
+// const { validarCampos } = require('../middlewares/validar-campos');
+// const { validarJWT } = require('../middlewares/validar-jwt');
+// const { esAdminRole, tieneRole } = require('../middlewares/validar-roles');
+const { validarCampos,
+    validarJWT,
+    esAdminRole,
+    tieneRole } = require('../middlewares')
 
-const { esRolValido, existeEmail, existeUsuarioPorId, isUsarioEliminado } = require('../helpers/db-validators');
+const { esRolValido, 
+    existeEmail, 
+    existeUsuarioPorId, 
+    isUsarioEliminado } = require('../helpers/db-validators');
 
 
 const { usuariosGet,
@@ -50,17 +58,20 @@ router.post('/', [
 router.put('/:id', [
     check('id', 'No es un id válido').isMongoId(),
     check('id').custom(existeUsuarioPorId),
-    check('rol').custom(esRolValido),
     check('id').custom(isUsarioEliminado),
+    check('rol').custom(esRolValido),
+    check('correo').custom(existeEmail),
     validarCampos
 ], usuariosPut);
 
 //elimino usando id
 router.delete('/:id', [
     validarJWT,
+    //esAdminRole,
+    tieneRole('ADMIN_ROLE', 'OTRO_ROLE'),
     check('id', 'No es un id válido').isMongoId(),
-    check('id').custom(existeUsuarioPorId),
     check('id').custom(isUsarioEliminado),
+    check('id').custom(existeUsuarioPorId),
     validarCampos
 ], usuariosDelete);
 

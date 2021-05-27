@@ -53,10 +53,15 @@ const usuariosPut = async (req, res) => {
     const id = req.params.id
     const { _id, password, google, correo, ...resto } = req.body;
 
-    //validar contra la BD 
+    //actualizar contraseña en BD 
     if (password) {
         const salt = bcryptjs.genSaltSync();
         resto.password = bcryptjs.hashSync(password, salt);
+    }
+
+    //actualizar correo en BD
+    if(correo){
+        resto.correo=correo;
     }
     const usuario = await Usuarios.findByIdAndUpdate(id, resto);
 
@@ -68,14 +73,16 @@ const usuariosDelete = async (req, res) => {
     const {id} = req.params
     const estado = {estado: false}
    
-    //manera de eliminar por completo de BD
-    //const usuario = await Usuarios.findByIdAndDelete(id)
-
+    /* Manera de eliminar por completo de BD
+        const usuario = await Usuarios.findByIdAndDelete(id) */
+ 
     /* Manera de "eliminar", cambiando el estado a false, seguira en mi BD
-        esto es para mantener la interidad referencial
-    */
+        esto es para mantener la interidad referencial */
     const usuario = await Usuarios.findByIdAndUpdate(id, estado)
-    res.json(usuario)
+    res.json({
+        msg: 'Usuario Eliminado',
+        usuario
+    })
 }
 
 module.exports = {
