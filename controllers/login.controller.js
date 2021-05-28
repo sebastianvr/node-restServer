@@ -2,14 +2,15 @@ const bcryptjs = require('bcryptjs');
 const { response, request } = require("express");
 
 const { createJWT } = require('../helpers/create-jwt');
-const Usuarios = require("../models/usuario");
+const Usuario = require("../models/usuario");
 
+const { googleVerify } = require('../helpers/google-validators')
 
 const login = async (req = request, res = response) => {
     const { correo, password } = req.body
     try {
         //verificar si email existe en BD
-        const usuario = await Usuarios.findOne({ correo });
+        const usuario = await Usuario.findOne({ correo });
         if (!usuario) {
             return res.status(400).json({
                 msj: "No existe este correo en la BD"
@@ -45,8 +46,61 @@ const login = async (req = request, res = response) => {
             msj: "Error hable con el administrador"
         })
     }
+
+}
+
+const googleSignIn = async (req = request, res = response) => {
+    const {id_token} = req.body;   
+
+    try {
+
+        const {correo, imagen, nombre} = await googleVerify(id_token)
+        
+        let usuario = await Usuario .findOne({correo});
+        
+        //correo registrado
+        if(usuario && !usuario.estado){
+            return res.status(401).json({
+                msg: 'Este usuario esta bloqueado, hable con admin'
+            });
+        }
+
+        if(usuario){
+            return res.status(401).json({
+                msg: 'Este usuario ya existe en BD'
+            });
+        }
+
+        //correo no esta registrado, registrarme
+        if(!usuario){    
+            const data = {
+                nombre,
+                correo, 
+                imagen,
+                password : ':P', 
+                google: true,
+            };
+            
+            usuario = new Usuario(data);
+            await usuario.save(); 
+
+        }
+
+        //generar un JWT
+        const token = await createJWT(usuario.id);
+        res.json({
+            usuario,
+            token
+        })  
+        
+    } catch (error) {
+        res.status(400).json({
+            msg: 'Token de google no es reconocido '
+        })
+    }
 }
 
 module.exports = {
-    login
+    login,
+    googleSignIn
 }

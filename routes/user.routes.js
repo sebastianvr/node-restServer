@@ -43,7 +43,7 @@ router.post('/', [
     /*comprobacion si existe, debido a que no pueden existir dos correo iguales*/
     check('correo').custom(existeEmail),
 
-    check('rol').custom(esRolValido),
+    //check('rol').custom(esRolValido),
 
     /*
         Notar que validarcampos no es pasado como una funcion solo (sin foo()), es pasado como referencia
@@ -68,7 +68,7 @@ router.put('/:id', [
 router.delete('/:id', [
     validarJWT,
     //esAdminRole,
-    tieneRole('ADMIN_ROLE', 'OTRO_ROLE'),
+    tieneRole('ADMIN_ROLE'),
     check('id', 'No es un id válido').isMongoId(),
     check('id').custom(isUsarioEliminado),
     check('id').custom(existeUsuarioPorId),

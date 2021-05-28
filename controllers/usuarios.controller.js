@@ -7,7 +7,7 @@ const Usuarios = require('../models/usuario');
 /* Uso en postman {{url}}/api/usuarios?desde=Number&limite=Number */
 const usuariosGet = async (req = request, res = response) => {
     const estado = {estado: true};
-    
+
     const { limite = 5, desde = 0 } = req.query;
 
     /* Para que mas de una promesa se ejecute (2 promesas hay aqui) entones uso el Promise.all
@@ -19,6 +19,7 @@ const usuariosGet = async (req = request, res = response) => {
             .limit(Number(limite))
             .skip(Number(desde)),
     ])
+
     res.json({
         total,
         usuarios
@@ -32,6 +33,7 @@ const usuariosPost = async (req, res) => {
     
     //recibo el contenido del body
     const { nombre, correo, password, rol } = req.body
+    
     //lo guardo en mi BD usuarios
     const usuario = new Usuarios({ nombre, correo, password, rol });
 
