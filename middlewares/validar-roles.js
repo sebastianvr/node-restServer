@@ -1,5 +1,4 @@
 const { request, response } = require("express");
-const usuario = require("../models/usuario");
 
 
 const esAdminRole = (req = request, res = response, next) => {
