@@ -10,7 +10,7 @@ const validarJWT =  async (req= request, res = response, next) =>{
         });
     }
     try {
-        /* verify(token del ciente, clave de la firma) retorna el payload */
+        /* verify parametros: token del ciente, clave de la firma, retorna el payload */
         const {uid} = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
         
         //leer en BD el usuario con el uid

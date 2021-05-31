@@ -1,12 +1,12 @@
 const { response, request } = require('express');
 const bcryptjs = require('bcryptjs');
 
-const Usuarios = require('../models/usuario');
+const {Usuario} = require('../models');
 
 //Obtener
 /* Uso en postman {{url}}/api/usuarios?desde=Number&limite=Number */
 const usuariosGet = async (req = request, res = response) => {
-    const estado = {estado: true};
+    const estado = { estado: true };
 
     const { limite = 5, desde = 0 } = req.query;
 
@@ -14,13 +14,13 @@ const usuariosGet = async (req = request, res = response) => {
         donde funcionara en paralelo por lo tanto menor tiempo de espera 
     */
     const [total, usuarios] = await Promise.all([
-        Usuarios.countDocuments(estado),
-        Usuarios.find(estado)
+        Usuario.countDocuments(estado),
+        Usuario.find(estado)
             .limit(Number(limite))
             .skip(Number(desde)),
     ])
 
-    res.json({
+    return res.json({
         total,
         usuarios
 
@@ -30,12 +30,12 @@ const usuariosGet = async (req = request, res = response) => {
 //Crear
 const usuariosPost = async (req, res) => {
     /* En este punto de la ejecucion, req ya ha sido validado en routes */
-    
+
     //recibo el contenido del body
     const { nombre, correo, password, rol } = req.body
-    
+
     //lo guardo en mi BD usuarios
-    const usuario = new Usuarios({ nombre, correo, password, rol });
+    const usuario = new Usuario({ nombre, correo, password, rol });
 
     //encryptar password
     const salt = bcryptjs.genSaltSync();
@@ -43,9 +43,9 @@ const usuariosPost = async (req, res) => {
 
     //guardar BD
     await usuario.save();
-    
-    res.status(201).json({
-        msg: "Datos guardados en la BD",
+
+    return res.status(201).json({
+        msg: "Usuario guardado!",
         usuario
     });
 }
@@ -62,27 +62,31 @@ const usuariosPut = async (req, res) => {
     }
 
     //actualizar correo en BD
-    if(correo){
-        resto.correo=correo;
+    if (correo) {
+        resto.correo = correo;
     }
-    const usuario = await Usuarios.findByIdAndUpdate(id, resto);
+    const usuario = await Usuario.findByIdAndUpdate(id, resto);
 
-    res.json(usuario)
+    return res.json({
+        msg: 'Usuario actualizado!',
+        usuario
+    })
 }
 
 //Eliminar
 const usuariosDelete = async (req, res) => {
-    const {id} = req.params
-    const estado = {estado: false}
-   
+    const { id } = req.params
+    const estado = { estado: false }
+
     /* Manera de eliminar por completo de BD
         const usuario = await Usuarios.findByIdAndDelete(id) */
- 
+
     /* Manera de "eliminar", cambiando el estado a false, seguira en mi BD
         esto es para mantener la interidad referencial */
-    const usuario = await Usuarios.findByIdAndUpdate(id, estado)
-    res.json({
-        msg: 'Usuario Eliminado',
+    const usuario = await Usuario.findByIdAndUpdate(id, estado)
+
+    return res.json({
+        msg: 'Usuario Eliminado!',
         usuario
     })
 }

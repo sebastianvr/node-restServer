@@ -1,12 +1,8 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
 
-// const { validarCampos } = require('../middlewares/validar-campos');
-// const { validarJWT } = require('../middlewares/validar-jwt');
-// const { esAdminRole, tieneRole } = require('../middlewares/validar-roles');
 const { validarCampos,
     validarJWT,
-    esAdminRole,
     tieneRole } = require('../middlewares')
 
 const { esRolValido, 
@@ -38,6 +34,7 @@ router.post('/', [
     check('password', 'El password debe tener mas de 6 carácteres').isLength({ min: 6 }),
 
     /*comprobacion si es un correo correcto*/
+    check('correo', 'Falta el campo correo').not().isEmpty(),
     check('correo', 'El correo no es válido').isEmail(),
 
     /*comprobacion si existe, debido a que no pueden existir dos correo iguales*/
@@ -67,7 +64,6 @@ router.put('/:id', [
 //elimino usando id
 router.delete('/:id', [
     validarJWT,
-    //esAdminRole,
     tieneRole('ADMIN_ROLE'),
     check('id', 'No es un id válido').isMongoId(),
     check('id').custom(isUsarioEliminado),

@@ -1,8 +1,8 @@
-const {Schema, model} = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 
 const RoleSchema = Schema({
-    rol:{
+    rol: {
         type: String,
         required: [true, 'Rol inválido']
     }

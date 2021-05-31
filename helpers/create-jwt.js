@@ -2,6 +2,9 @@ const jwt = require("jsonwebtoken");
 
 const createJWT = async (uid = '') => {
     return new Promise((resolve, reject) => {
+
+
+
         const payload = { uid };
         jwt.sign(payload,
             process.env.SECRETORPRIVATEKEY,

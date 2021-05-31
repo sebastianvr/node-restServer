@@ -20,18 +20,18 @@ const esAdminRole = (req = request, res = response, next) => {
     next();
 }
 
-const tieneRole = (...roles) => { 
+const tieneRole = (...roles) => {
     return ((req = request, res = response, next) => {
-        
+
         if (!req.usuario) {
             return res.status(500).json({
                 msg: 'Se requiere verificar el role sin validar el token primero'
             });
         }
 
-        if(!roles.includes(req.usuario.rol)){
+        if (!roles.includes(req.usuario.rol)) {
             return res.status(401).json({
-                msg : 'El rol de este usuario no esta autorizado a eliminar'
+                msg: 'El rol de este usuario no esta autorizado a eliminar'
             })
         }
         next();

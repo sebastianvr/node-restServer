@@ -8,11 +8,11 @@ const googleVerify = async (idToken = '') => {
         // Or, if multiple clients access the backend:
         //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
     });
-    const {name: nombre, 
-            picture: imagen,
-            email: correo} = ticket.getPayload();
+    const { name: nombre,
+        picture: imagen,
+        email: correo } = ticket.getPayload();
 
-    return {nombre, imagen, correo}
+    return { nombre, imagen, correo }
 }
 
 module.exports = {
