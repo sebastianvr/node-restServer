@@ -1,6 +1,7 @@
 const { Categoria,
     Role,
-    Usuario } = require('../models');
+    Usuario,
+    Producto } = require('../models');
 
 //estos son los middlewares que seran utilizados para validaciones al hacer peticiones en los endpoints
 
@@ -45,24 +46,25 @@ const esUsuarioEliminado = async (id) => {
     }
 }
 const existeCategoriaPorId = async (id) => {
-
-    if (!id) {
-        return;
-    }
-
     const existeCat = await Categoria.findById(id);
     if (!existeCat) {
-        throw new Error(`id ${id} no existe en BD`);
+        throw new Error(`La categoria no existe en BD`);
     }
 
 }
 
-const isCategoriaEliminada = async (id) => {
-    const catEliminada = await Categoria.findById(id).where({ estado: false });
-    if (catEliminada) {
-        throw new Error(`El id  ${id}  esta eliminado en la BD`);
+const isCategoriaEliminada = async (categoria) => {
+    const catEliminada = await Categoria.findById(categoria).where({ estado: false });
+   
+    //si el resutado de la consulta es null, indica que no hay caategoria con ese id en estado false
+    if(!catEliminada){
+        return;
+    }
+    if (!catEliminada.estado) {
+        throw new Error(`Esta categoria esta eliminada en la BD`);
 
     }
+    return
 }
 
 const existeCategoria = async (nombre = '') => {
@@ -73,6 +75,34 @@ const existeCategoria = async (nombre = '') => {
     }
 }
 
+const existeProductoByNombre = async (nombre = '') => {
+    nombre = nombre.toUpperCase();
+    const existeNombre = await Producto.findOne({ nombre });
+    if (existeNombre) {
+        throw new Error(`Este nombre: ${nombre} ya esta registrado`);
+    }
+}
+const existeProductoPorId = async (id) => {
+    const existeProd = await Producto.findById(id);
+    if (!existeProd) {
+        throw new Error(`El producto no existe en BD`);
+    }
+
+}
+
+const esProductoEliminado = async (id) => {
+    //console.log(id);
+    const productoEliminado = await Producto.findById(id);
+
+    if(!productoEliminado){
+        return;
+    }
+    if (!productoEliminado.estado) {
+        throw new Error(`El producto esta eliminado en la BD`);
+
+    }
+}
+
 module.exports = {
     existeRol,
     existeEmail,
@@ -80,6 +110,9 @@ module.exports = {
     esUsuarioEliminado,
     isCategoriaEliminada,
     existeCategoriaPorId,
-    existeCategoria
-    
+    existeCategoria,
+    existeProductoPorId,
+    existeProductoByNombre,
+    esProductoEliminado
+
 }

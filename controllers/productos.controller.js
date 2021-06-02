@@ -1,51 +1,86 @@
 const { response } = require("express");
-const Producto = require("../models");
+const { Producto } = require("../models");
 
 
-const getProductoById = (req, res) => {
-    res.json({
-        msg: "todo ok get"
+const getProductoById = async (req, res = response) => {
+    const { id } = req.params;
+
+    const producto = await Producto.findById(id)
+        .populate('usuario', 'nombre')
+        .populate('categoria');
+
+    return res.status(201).json({
+        producto
     });
 };
 
-const getProductos = (req, res) => {
-    res.json({
-        msg: "todo ok getall"
+const getProductos = async (req, res = response) => {
+    const estado = { estado: true };
+    const { limite = 5, desde = 0 } = req.query;
+
+    const [total, producto] = await Promise.all([
+        Producto.countDocuments(estado),
+        Producto.find(estado)
+            .populate('usuario', 'nombre')
+            .populate('categoria', 'nombre')
+            .limit(Number(limite))
+            .skip(Number(desde)),
+    ])
+
+    return res.status(200).json({
+        total,
+        producto
+
     });
 };
 
 const postProductos = async (req, res = response) => {
-    const { nombre, precio, categoria } = req.body
-    
+    const { nombre, categoria } = req.body
+    console.log(req.body);
     const data = {
-        nombre,
-        usuario : `${req.usuario._id}`,
+        nombre: nombre.toUpperCase(),
+        usuario: req.usuario._id,
         categoria
     }
 
-
-    console.log(data)
-
     const producto = new Producto(data);
-    //console.log(producto)
 
     await producto.save();
     res.json({
-        msg: "todo ok post",
-        nombre, 
-        precio
+        producto
     });
 };
 
-const putProductos = (req, res) => {
-    res.json({
-        msg: "todo ok put productos"
+const putProductos = async (req, res) => {
+    const { id } = req.params;
+    const { estado, usuario, ...resto } = req.body;
+
+    //si el nombre viene en la peticion
+    if (resto.nombre) {
+        resto.nombre = resto.nombre.toUpperCase();
+    }
+
+    producto = await Producto.findByIdAndUpdate(id, { resto }, { new: true })
+        .populate('usuario', 'nombre')
+        .populate('categoria', 'nombre');
+
+    return res.status(200).json({
+        msg: 'Producto actualizada!',
+        producto
+
     });
 };
 
-const deleteProductos = (req, res) => {
+const deleteProductos = async (req, res = response) => {
+    const id = req.params.id;
+    const estado = { estado: false };
+
+    const producto = await Producto.findByIdAndUpdate(id, estado, { new: true });
+    await producto.save();
+
     res.json({
-        msg: "todo ok delete productos"
+        msg: "todo ok delete productos",
+        producto
     });
 };
 
