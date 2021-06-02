@@ -34,6 +34,11 @@ const usuariosPost = async (req, res) => {
     //recibo el contenido del body
     const { nombre, correo, password, rol } = req.body
 
+    const data ={
+        nombre, 
+        rol, 
+        correo
+    }
     //lo guardo en mi BD usuarios
     const usuario = new Usuario({ nombre, correo, password, rol });
 
@@ -43,15 +48,20 @@ const usuariosPost = async (req, res) => {
 
     //guardar BD
     await usuario.save();
-
+    console.log(usuario);
+  
     return res.status(201).json({
-        msg: "Usuario guardado!",
-        usuario
+        msg: "Usuario creado!",
+        data
     });
 }
 
 //Actualizar
 const usuariosPut = async (req, res) => {
+
+    // TODO necesito preguntar si viene al menos un dato para actualizar, 
+    //sea correo, imagen, contraseña 
+    
     const id = req.params.id
     const { _id, password, google, correo, ...resto } = req.body;
 
@@ -65,7 +75,15 @@ const usuariosPut = async (req, res) => {
     if (correo) {
         resto.correo = correo;
     }
-    const usuario = await Usuario.findByIdAndUpdate(id, resto);
+    const usuario = await Usuario.findByIdAndUpdate(id, resto, {new:true});
+
+    //usuario = null
+    /* Para el caso en que em enpoint ingregse un id de valido pero de otra coleccion de datos*/
+    if(!usuario){
+        return res.status(401).json({
+            msg : 'Usuario no existe en la BD'
+        })
+    }
 
     return res.json({
         msg: 'Usuario actualizado!',

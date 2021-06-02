@@ -6,7 +6,8 @@ const { validarCampos,
     tieneRole } = require('../middlewares');
 
 const { existeCategoriaPorId,
-    isCategoriaEliminada } = require('../helpers/db-validators');
+    isCategoriaEliminada, 
+    existeCategoria } = require('../helpers/db-validators');
 
 const { categoriaGet,
     categoriaGetAll,
@@ -16,18 +17,19 @@ const { categoriaGet,
 
 const route = Router();
 
+/* Paginado, usando metodo populate*/
 route.get('/', categoriaGetAll);
 
 /* Condiciones para que el get por id sea correcto:
-    - id no vacio
-    - id tipo Mongo
-    - id no eliminado en BD
+    - id no vacio, si esta vacio el controlador sera categoriaGetAll
+    - id tipo Mongo - mongo no es sensible a mayusculas
+    - id no eliminado en BD a traves del campo estado
     - id exista en BD
 */
 route.get('/:id', [
     check('id', 'No es un id de mongo').isMongoId(),
-    check('id').custom(existeCategoriaPorId),
-    check('id').custom(isCategoriaEliminada),
+    check('_id').custom(existeCategoriaPorId),
+    check('_id').custom(isCategoriaEliminada),
     validarCampos
 ], categoriaGet);
 
@@ -42,6 +44,10 @@ route.put('/:id', [
     tieneRole('ADMIN_ROLE'),
     check('id', 'El id es obligatorio').not().isEmpty(),
     check('id', 'No es un id de mongo').isMongoId(),
+    check('nombre', 'El campo nombre es obligatorio').not().isEmpty(),
+    check('nombre').custom(existeCategoria),
+    check('id').custom(existeCategoriaPorId),
+    check('id').custom(isCategoriaEliminada),
     validarCampos
 ], categoriaPut);
 
@@ -51,8 +57,8 @@ route.delete('/:id', [
     tieneRole('ADMIN_ROLE'),
     check('id', 'El id es obligatorio').not().isEmpty(),
     check('id', 'No es un id de mongo').isMongoId(),
-    check('id').custom(isCategoriaEliminada),
     check('id').custom(existeCategoriaPorId),
+    check('id').custom(isCategoriaEliminada),
     validarCampos
 ], categoriaDelete);
 

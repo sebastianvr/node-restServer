@@ -3,12 +3,14 @@ const { check } = require('express-validator');
 
 const { validarCampos,
     validarJWT,
-    tieneRole } = require('../middlewares')
+    tieneRole, 
+    existeAlMenosUno} = require('../middlewares')
 
-const { esRolValido, 
-    existeEmail, 
+const {  existeEmail, 
     existeUsuarioPorId, 
-    isUsarioEliminado } = require('../helpers/db-validators');
+    esUsuarioEliminado, 
+    existeRol
+} = require('../helpers/db-validators');
 
 
 const { usuariosGet,
@@ -30,11 +32,12 @@ router.post('/', [
 
     /*Express validator permite sanitizar mis datos de entrada,
     Es importante entender que el check va a ser codificado con lo que si debe tener para saltar al otro check */
-    check('nombre', 'El nombre es obligatorio').not().isEmpty(),
+    check('nombre', 'El campo nombre es obligatorio').not().isEmpty(),
+    check('password', 'El campo password es obligatorio').not().isEmpty(),
     check('password', 'El password debe tener mas de 6 carácteres').isLength({ min: 6 }),
 
     /*comprobacion si es un correo correcto*/
-    check('correo', 'Falta el campo correo').not().isEmpty(),
+    check('correo', 'El campo correo es obligatorio').not().isEmpty(),
     check('correo', 'El correo no es válido').isEmail(),
 
     /*comprobacion si existe, debido a que no pueden existir dos correo iguales*/
@@ -52,12 +55,21 @@ router.post('/', [
 ], usuariosPost);
 
 //actualizar enviando id
+//TODO: validar que almeno venta algun dato 
+// correo, password, imagen
+// si el campo correo viene algo, comprobar que es un email valido 
+// si la imagen existe, comprobar que sea un string .isString()
+// si no viene  ningun campo anterior, mandar msje error
 router.put('/:id', [
+    check('id', 'El campo id es obligatorio').not().isEmpty(),
     check('id', 'No es un id válido').isMongoId(),
-    check('id').custom(existeUsuarioPorId),
-    check('id').custom(isUsarioEliminado),
-    check('rol').custom(esRolValido),
-    check('correo').custom(existeEmail),
+    check('_id').custom(existeUsuarioPorId),
+    check('_id').custom(esUsuarioEliminado),
+    check('rol').custom(existeRol),
+    
+    //check('correo', 'El correo no es valido').isEmail(),
+    //heck('correo').custom(existeEmail),
+
     validarCampos
 ], usuariosPut);
 
@@ -66,7 +78,7 @@ router.delete('/:id', [
     validarJWT,
     tieneRole('ADMIN_ROLE'),
     check('id', 'No es un id válido').isMongoId(),
-    check('id').custom(isUsarioEliminado),
+    check('id').custom(esUsuarioEliminado),
     check('id').custom(existeUsuarioPorId),
     validarCampos
 ], usuariosDelete);
