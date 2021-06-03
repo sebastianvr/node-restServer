@@ -1,7 +1,7 @@
 const { response } = require("express")
 const { ObjectId } = require("mongoose").Types;
 
-const { Usuario } = require('../models');
+const { Usuario, Categoria, Producto } = require('../models');
 
 const coleccionesPermitidas = [
     'categorias',
@@ -10,7 +10,7 @@ const coleccionesPermitidas = [
     'usuarios',
 ]
 
-const buscarPorUsuario = async (elemento='', coleccion)=>{
+const buscarPorUsuario = async (elemento = '') => {
     /* Para buscar por usuario hay dos maneras colocado su id, o colocando el nombre en la busqueda */
     /* EJEMPLO :   {{url}}/api/usuarios/test1   - {{url}}/api/usuarios/607baba40e301e0d96225c4d */
 
@@ -19,24 +19,55 @@ const buscarPorUsuario = async (elemento='', coleccion)=>{
     let usuario;
 
     //console.log(er.test());
-    if(isMongoId){
+    if (isMongoId) {
         usuario = await Usuario.findById(elemento);
         return usuario ? [usuario] : [];
     }
-   
+
     //expresion regular para hacer insensible a las mayusculas y minusculas
     const er = new RegExp(elemento, 'i');
-   
+
     //TOOD: promesa en cadena una para find otra para count
     usuario = await Usuario.find({
-        $or : [{nombre: er}, {correo: er}],
-        $and : [{estado: true}]
-    }); 
-    return usuario 
+        $or: [{ nombre: er }, { correo: er }],
+        $and: [{ estado: true }]
+    });
+    return usuario ? [usuario] : [];
 
 
 }
 
+const buscarPorCategoria = async (elemento = '') => {
+    const isMongoId = ObjectId.isValid(elemento);
+    let categoria;
+
+    if (isMongoId) {
+        categoria = await Categoria.findById(elemento);
+        return categoria ? [categoria] : [];
+    }
+
+    const er = new RegExp(elemento, 'i');
+    categoria = await Categoria.find({
+        $and: [{ nombre: er }, { estado: true }]
+    });
+    return categoria ? [categoria] : [];
+};
+
+const buscarPorProducto = async (elemento = '') => {
+    const isMongoId = ObjectId.isValid(elemento);
+    let producto;
+
+    if (isMongoId) {
+        producto = await Producto.findById(elemento);
+        return producto ? [producto] : [];
+    }
+
+    const er = new RegExp(elemento, 'i');
+    producto = await Producto.find({
+        $and: [{ nombre: er }, { estado: true }]
+    });
+    return producto ? [producto] : [];
+};
 
 const getBusqueda = async (req, res = response) => {
     const { coleccion, elemento } = req.params;
@@ -46,33 +77,28 @@ const getBusqueda = async (req, res = response) => {
             msg: 'Esta coleccion no esta en nuestra BD'
         });
     }
-
+    let data;
     switch (coleccion) {
         case 'categorias':
-            
-            res.status(200).json({
-                coleccion,
-                elemento
-            });
-            break;
-        case 'roles':
-            res.status(200).json({
-                coleccion,
-                elemento
-            });
-            break;
-        case 'productos':
-            res.status(200).json({
-                coleccion,
-                elemento
-            });
-            break;
-        case 'usuarios':
-            const data = await buscarPorUsuario(elemento);
+            data = await buscarPorCategoria(elemento);
+            console.log(data)
             res.status(200).json({
                 data
             });
-            
+            break;
+
+        case 'productos':
+            data = await buscarPorProducto(elemento);
+            res.status(200).json({
+                data
+            });
+            break;
+
+        case 'usuarios':
+            data = await buscarPorUsuario(elemento);
+            res.status(200).json({
+                data
+            });
             break;
 
         default:
