@@ -35,12 +35,15 @@ const getProductos = async (req, res = response) => {
 };
 
 const postProductos = async (req, res = response) => {
-    const { nombre, categoria } = req.body
-    console.log(req.body);
+    const { nombre, categoria, precio, descripcion } = req.body
+    //console.log(req.body);
+
     const data = {
         nombre: nombre.toUpperCase(),
         usuario: req.usuario._id,
-        categoria
+        categoria,
+        precio,
+        descripcion
     }
 
     const producto = new Producto(data);
