@@ -32,7 +32,7 @@ const buscarPorUsuario = async (elemento = '') => {
         $or: [{ nombre: er }, { correo: er }],
         $and: [{ estado: true }]
     });
-    return usuario ? [usuario] : [];
+    return usuario;
 
 
 }
@@ -50,7 +50,7 @@ const buscarPorCategoria = async (elemento = '') => {
     categoria = await Categoria.find({
         $and: [{ nombre: er }, { estado: true }]
     });
-    return categoria ? [categoria] : [];
+    return categoria;
 };
 
 const buscarPorProducto = async (elemento = '') => {
@@ -58,15 +58,16 @@ const buscarPorProducto = async (elemento = '') => {
     let producto;
 
     if (isMongoId) {
-        producto = await Producto.findById(elemento);
+        producto = await Producto.findById(elemento)
+            .populate('categoria', 'nombre');
         return producto ? [producto] : [];
     }
 
     const er = new RegExp(elemento, 'i');
     producto = await Producto.find({
-        $and: [{ nombre: er }, { estado: true }]
-    });
-    return producto ? [producto] : [];
+        $and: [{ nombre: er }, { estado: true }]})
+        .populate('categoria', 'nombre');
+    return producto;
 };
 
 const getBusqueda = async (req, res = response) => {
