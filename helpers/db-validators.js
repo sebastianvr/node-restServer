@@ -55,9 +55,9 @@ const existeCategoriaPorId = async (id) => {
 
 const isCategoriaEliminada = async (categoria) => {
     const catEliminada = await Categoria.findById(categoria).where({ estado: false });
-   
+
     //si el resutado de la consulta es null, indica que no hay caategoria con ese id en estado false
-    if(!catEliminada){
+    if (!catEliminada) {
         return;
     }
     if (!catEliminada.estado) {
@@ -94,13 +94,22 @@ const esProductoEliminado = async (id) => {
     //console.log(id);
     const productoEliminado = await Producto.findById(id);
 
-    if(!productoEliminado){
+    if (!productoEliminado) {
         return;
     }
     if (!productoEliminado.estado) {
         throw new Error(`El producto esta eliminado en la BD`);
 
     }
+}
+
+const coleccionesPermitidas = (nombre = '', coleccionPermitida = []) => {
+
+    if(!coleccionPermitida.includes(nombre)){
+        throw new Error(`Coleccion ${nombre} no está permitida`);
+    }
+
+    return true
 }
 
 module.exports = {
@@ -113,6 +122,7 @@ module.exports = {
     existeCategoria,
     existeProductoPorId,
     existeProductoByNombre,
-    esProductoEliminado
+    esProductoEliminado,
+    coleccionesPermitidas
 
 }

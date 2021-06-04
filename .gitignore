@@ -1,3 +1,15 @@
-node_modules/
 .env
+
+node_modules/
+
 .DS_Store
+
+uploads/productos/**.jpg
+uploads/productos/**.png
+uploads/productos/**.jpeg
+uploads/productos/**.gif
+
+uploads/usuarios/**.png
+uploads/usuarios/**.jpg
+uploads/usuarios/**.jpeg
+uploads/usuarios/**.gif

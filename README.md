@@ -8,3 +8,10 @@
 
 
 
+tecnologias utilizadas
+MongoDB
+Nodejs
+
+servidores gratuitos
+Cloudinary
+Heroku
